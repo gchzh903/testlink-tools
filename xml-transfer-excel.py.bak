@@ -1,0 +1,70 @@
+import sys
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QVBoxLayout, QWidget, QTextEdit, QFileDialog, QMessageBox
+
+from excel_generator import *
+
+
+class MainUI(QWidget):
+
+    def __init__(self):
+        super(MainUI, self).__init__()
+        self.status_edit = None
+        self.file_edit = None
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle('XML转换Excel工具 v1.0')
+        self.setFixedSize(600, 350)
+        self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
+
+        hori_layout = QHBoxLayout()
+        file_edit = QTextEdit()
+        file_edit.setFixedHeight(30)
+        file_edit.setReadOnly(True)
+        self.file_edit = file_edit
+
+        open_button = QPushButton('打开测试用例XML')
+        open_button.clicked.connect(self.on_open_button_clicked)
+
+        hori_layout.addWidget(file_edit)
+        hori_layout.addWidget(open_button)
+
+        status_edit = QTextEdit()
+        status_edit.setEnabled(False)
+        self.status_edit = status_edit
+        status_edit.setStyleSheet('color:green')
+
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(hori_layout)
+        main_layout.addWidget(status_edit)
+        self.setLayout(main_layout)
+
+    def on_open_button_clicked(self):
+        filepath, filetype = QFileDialog.getOpenFileName(self, "选取文件", "./", "XML Files (*.xml)")
+        if filepath == '':
+            return
+        self.file_edit.setText(filepath)
+        outdir = os.path.dirname(filepath)
+
+        try:
+            trees = read_xml_and_build_cases(filepath)
+            k = trees.keys()[0]
+            v = trees.values()[0]
+            excel_file = generate_excel(outdir, k, v)
+            self.status_edit.insertPlainText('生成成功：%s \n' % excel_file)
+        except Exception as e:
+            QMessageBox.critical(self, '生成Excel出错', '请检查XML文件是否正确！')
+
+
+def main():
+    app = QApplication(sys.argv)
+    ui = MainUI()
+    ui.show()
+    app.exec_()
+
+
+if __name__ == '__main__':
+    main()
