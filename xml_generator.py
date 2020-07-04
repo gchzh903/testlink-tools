@@ -177,4 +177,3 @@ def generate_xml(xml_dir, name, t):
     with open(xml_file, 'w', encoding='utf-8') as f:
         doc.writexml(f, indent='\t', newl='\n', addindent='\t', encoding='utf-8')
     return xml_file
-
