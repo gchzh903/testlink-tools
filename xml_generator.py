@@ -34,30 +34,33 @@ def read_excel_and_build_trees(excel_file):
     result = {}
 
     for sheet in sheets:
-        root_tree = OrderedDict()
-        root_tree.setdefault(sheet.name, OrderedDict())
-        t = root_tree[sheet.name]
+        if sheet.name != '模板说明':
+            root_tree = OrderedDict()
+            root_tree.setdefault(sheet.name, OrderedDict())
+            t = root_tree[sheet.name]
 
-        for row in range(1, sheet.nrows):
-            path = sheet.cell_value(row, 0).strip()
-            summary = sheet.cell_value(row, 1).strip()
-            if summary == '':
-                continue
+            for row in range(1, sheet.nrows):
+                path = sheet.cell_value(row, 0).strip()
+                summary = sheet.cell_value(row, 1).strip()
+                if summary == '':
+                    continue
 
-            precond = sheet.cell_value(row, 2).strip()
-            steps = sheet.cell_value(row, 3).strip()
-            expected = sheet.cell_value(row, 4).strip()
-            importance = sheet.cell_value(row, 5).strip()
-            importance = IMPORTANCE.get(importance, '3')
-            keywords = sheet.cell_value(row, 6).strip()
-            keywords = keywords.split(',') if keywords != '' else []
-            exectype = sheet.cell_value(row, 7).strip()
-            exectype = EXECTYPE.get(exectype, '1')
+                precond = sheet.cell_value(row, 2).strip()
+                steps = sheet.cell_value(row, 3).strip()
+                expected = sheet.cell_value(row, 4).strip()
+                importance = sheet.cell_value(row, 5).strip()
+                importance = IMPORTANCE.get(importance, '3')
+                keywords = sheet.cell_value(row, 6).strip()
+                keywords = keywords.split(',') if keywords != '' else []
+                exectype = sheet.cell_value(row, 7).strip()
+                exectype = EXECTYPE.get(exectype, '1')
 
-            case = Case(summary, precond, exectype, steps, expected, importance, keywords)
-            add_case(t, path, case)
+                case = Case(summary, precond, exectype, steps, expected, importance, keywords)
+                add_case(t, path, case)
 
-        result[sheet.name] = root_tree
+            result[sheet.name] = root_tree
+        else:
+            pass
 
     return result
 
